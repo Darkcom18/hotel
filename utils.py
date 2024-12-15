@@ -119,9 +119,9 @@ import qrcode
 import json
 import streamlit as st
 
-SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"
+sheet_id = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"
 
-def connect_to_google_sheet(sheet_id=SHEET_ID):
+def connect_to_google_sheet(sheet_id):
     """
     Kết nối đến Google Sheets bằng Sheet ID.
     Args:
@@ -129,18 +129,26 @@ def connect_to_google_sheet(sheet_id=SHEET_ID):
     Returns:
         gspread.models.Spreadsheet: Đối tượng Google Sheet.
     """
-    credentials_dict = json.loads(st.secrets["GCP_CREDENTIALS"])
-    temp_credentials_file = "temp_credentials.json"
+    # Lấy credentials từ Streamlit Secrets
+    credentials_str = st.secrets.get("GCP_CREDENTIALS")
+    if not credentials_str:
+        raise ValueError("GCP_CREDENTIALS không được thiết lập trong Streamlit Secrets.")
 
+    try:
+        credentials_dict = json.loads(credentials_str)
+    except TypeError:
+        raise ValueError("GCP_CREDENTIALS không hợp lệ. Kiểm tra lại nội dung trong Streamlit Secrets.")
+
+    temp_credentials_file = "temp_credentials.json"
     with open(temp_credentials_file, "w") as f:
         json.dump(credentials_dict, f)
 
+    # Kết nối với Google Sheets
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name(temp_credentials_file, scope)
     client = gspread.authorize(creds)
 
     os.remove(temp_credentials_file)
-
     return client.open_by_key(sheet_id)
 
 def read_google_sheet(sheet_name, worksheet_name):
