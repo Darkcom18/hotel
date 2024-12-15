@@ -118,21 +118,29 @@ from io import BytesIO
 import qrcode
 import json
 
-def connect_to_google_sheet(sheet_name):
+SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"
+
+def connect_to_google_sheet_by_id(sheet_id=SHEET_ID):
     """
-    Kết nối đến Google Sheets thông qua Streamlit Secrets.
+    Kết nối đến Google Sheets bằng Sheet ID.
+    Args:
+        sheet_id (str): ID của Google Sheet.
+    Returns:
+        gspread.models.Spreadsheet: Đối tượng Google Sheet.
     """
-    credentials_dict = json.loads(os.getenv("GCP_CREDENTIALS"))
+    credentials_dict = json.loads(st.secrets["GCP_CREDENTIALS"])
     temp_credentials_file = "temp_credentials.json"
+
     with open(temp_credentials_file, "w") as f:
         json.dump(credentials_dict, f)
-    
+
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name(temp_credentials_file, scope)
+    client = gspread.authorize(creds)
+
     os.remove(temp_credentials_file)
 
-    client = gspread.authorize(creds)
-    return client.open(sheet_name)
+    return client.open_by_key(sheet_id)
 
 def read_google_sheet(sheet_name, worksheet_name):
     """

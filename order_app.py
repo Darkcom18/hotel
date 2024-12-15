@@ -43,7 +43,7 @@ import pandas as pd
 SHEET_NAME = "Hotel Data"
 
 # Lấy số phòng từ URL
-query_params = st.experimental_get_query_params()
+query_params = st.query_params()
 room_number = query_params.get("room", [""])[0]
 
 if not room_number:
