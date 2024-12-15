@@ -130,18 +130,13 @@ def connect_to_google_sheet(sheet_id):
         gspread.models.Spreadsheet: Đối tượng Google Sheet.
     """
     # Lấy credentials từ Streamlit Secrets
-    credentials_str = st.secrets.get("GCP_CREDENTIALS")
-    if not credentials_str:
+    credentials_dict = st.secrets["GCP_CREDENTIALS"]
+    if not credentials_dict:
         raise ValueError("GCP_CREDENTIALS không được thiết lập trong Streamlit Secrets.")
-
-    try:
-        credentials_dict = json.loads(credentials_str)
-    except TypeError:
-        raise ValueError("GCP_CREDENTIALS không hợp lệ. Kiểm tra lại nội dung trong Streamlit Secrets.")
 
     temp_credentials_file = "temp_credentials.json"
     with open(temp_credentials_file, "w") as f:
-        json.dump(credentials_dict, f)
+        json.dump(dict(credentials_dict), f)  # Chuyển AttrDict thành dict để lưu vào file
 
     # Kết nối với Google Sheets
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
