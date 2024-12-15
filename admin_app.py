@@ -106,8 +106,8 @@ import streamlit as st
 from utils import read_google_sheet, write_to_google_sheet, create_qr_code
 import pandas as pd
 
-# Tên Google Sheet
-SHEET_NAME = "Hotel Data"
+# Google Sheet ID
+SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"  # Thay bằng Sheet ID của bạn
 
 # Tabs quản lý
 tab = st.sidebar.selectbox("Chọn tab", [
@@ -121,7 +121,7 @@ tab = st.sidebar.selectbox("Chọn tab", [
 # 1. Tạo mã QR
 if tab == "Tạo mã QR":
     st.header("Tạo mã QR cho từng phòng")
-    qr_data = read_google_sheet(SHEET_NAME, "qr_codes")
+    qr_data = read_google_sheet(SHEET_ID, "qr_codes")
     room_number = st.text_input("Nhập số phòng:")
     if st.button("Tạo QR Code"):
         if room_number:
@@ -129,7 +129,7 @@ if tab == "Tạo mã QR":
             qr_image = create_qr_code(qr_url)
             new_qr = pd.DataFrame({"Phòng": [room_number], "Link": [qr_url]})
             qr_data = pd.concat([qr_data, new_qr], ignore_index=True)
-            write_to_google_sheet(SHEET_NAME, "qr_codes", qr_data)
+            write_to_google_sheet(SHEET_ID, "qr_codes", qr_data)
             st.image(qr_image, caption=f"QR Code - Phòng {room_number}")
             st.success(f"QR Code cho phòng {room_number} đã được tạo và lưu.")
         else:
@@ -138,7 +138,7 @@ if tab == "Tạo mã QR":
 # 2. Xem lại QR Code
 elif tab == "Xem lại QR Code":
     st.header("Danh sách QR Code đã tạo")
-    qr_data = read_google_sheet(SHEET_NAME, "qr_codes")
+    qr_data = read_google_sheet(SHEET_ID, "qr_codes")
     if qr_data.empty:
         st.info("Chưa có QR Code nào được tạo.")
     else:
@@ -151,7 +151,7 @@ elif tab == "Xem lại QR Code":
 # 3. Tạo menu đồ ăn/thức uống
 elif tab == "Tạo menu đồ ăn/thức uống":
     st.header("Cập nhật menu")
-    menu_data = read_google_sheet(SHEET_NAME, "menu")
+    menu_data = read_google_sheet(SHEET_ID, "menu")
     item_name = st.text_input("Tên món:")
     item_desc = st.text_input("Miêu tả món:")
     item_price = st.number_input("Giá món:", min_value=0.0)
@@ -166,7 +166,7 @@ elif tab == "Tạo menu đồ ăn/thức uống":
                 "Ảnh": [uploaded_image.name if uploaded_image else ""]
             })
             menu_data = pd.concat([menu_data, new_item], ignore_index=True)
-            write_to_google_sheet(SHEET_NAME, "menu", menu_data)
+            write_to_google_sheet(SHEET_ID, "menu", menu_data)
             st.success("Thêm món thành công!")
         else:
             st.error("Vui lòng nhập đầy đủ thông tin món ăn.")
@@ -174,7 +174,7 @@ elif tab == "Tạo menu đồ ăn/thức uống":
 # 4. Xem lại menu
 elif tab == "Xem lại menu":
     st.header("Menu hiện tại")
-    menu_data = read_google_sheet(SHEET_NAME, "menu")
+    menu_data = read_google_sheet(SHEET_ID, "menu")
     if menu_data.empty:
         st.info("Chưa có món ăn nào trong menu.")
     else:
@@ -190,7 +190,7 @@ elif tab == "Xem lại menu":
 # 5. Xem đơn hàng
 elif tab == "Xem đơn hàng":
     st.header("Danh sách đơn hàng")
-    orders_data = read_google_sheet(SHEET_NAME, "orders")
+    orders_data = read_google_sheet(SHEET_ID, "orders")
     if orders_data.empty:
         st.info("Chưa có đơn hàng nào.")
     else:

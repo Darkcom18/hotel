@@ -39,11 +39,11 @@ import streamlit as st
 from utils import read_google_sheet, write_to_google_sheet
 import pandas as pd
 
-# Tên Google Sheet
-SHEET_NAME = "Hotel Data"
+# Google Sheet ID
+SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"  # Thay bằng Sheet ID của bạn
 
 # Lấy số phòng từ URL
-query_params = st.query_params()
+query_params = st.experimental_get_query_params()
 room_number = query_params.get("room", [""])[0]
 
 if not room_number:
@@ -53,12 +53,14 @@ else:
     st.write(f"Phòng: {room_number}")
 
     # Đọc menu từ Google Sheets
-    menu_data = read_google_sheet(SHEET_NAME, "menu")
+    menu_data = read_google_sheet(SHEET_ID, "menu")
     if menu_data.empty:
         st.info("Hiện tại chưa có món ăn nào.")
     else:
         st.subheader("Menu")
-        orders = []
+        orders = []  # Danh sách các món đặt hàng
+
+        # Hiển thị menu
         for _, row in menu_data.iterrows():
             st.subheader(row['Món ăn'])
             st.write(f"Miêu tả: {row['Miêu tả']}")
@@ -80,9 +82,11 @@ else:
         if st.button("Gửi Đơn Hàng"):
             if orders:
                 new_order = pd.DataFrame(orders)
-                orders_data = read_google_sheet(SHEET_NAME, "orders")
+                # Đọc danh sách đơn hàng hiện có từ Google Sheets
+                orders_data = read_google_sheet(SHEET_ID, "orders")
+                # Cập nhật danh sách đơn hàng
                 orders_data = pd.concat([orders_data, new_order], ignore_index=True)
-                write_to_google_sheet(SHEET_NAME, "orders", orders_data)
+                write_to_google_sheet(SHEET_ID, "orders", orders_data)  # Ghi dữ liệu vào Google Sheets
                 st.success("Đơn hàng đã được gửi thành công!")
             else:
                 st.warning("Vui lòng chọn ít nhất một món để đặt hàng.")
