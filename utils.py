@@ -120,7 +120,7 @@ import json
 
 SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"
 
-def connect_to_google_sheet_by_id(sheet_id=SHEET_ID):
+def connect_to_google_sheet(sheet_id=SHEET_ID):
     """
     Kết nối đến Google Sheets bằng Sheet ID.
     Args:
