@@ -117,6 +117,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from io import BytesIO
 import qrcode
 import json
+import streamlit as st
 
 SHEET_ID = "1hxHrZKQftOE1zaPzsxlrUfK_Hs2MD8N-I5NOpTahDWU"
 
