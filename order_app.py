@@ -3,15 +3,16 @@ from utils import load_data, save_data
 MENU_FILE = "data/menu_data.csv"
 ORDERS_FILE = "data/orders_data.csv"
 
+# Lấy số phòng từ URL
 query_params = st.experimental_get_query_params()
 room_number = query_params.get("room", [""])[0]
-
-st.title("Trang Đặt Hàng Nhà Hàng")
 
 if not room_number:
     st.error("Không tìm thấy thông tin phòng. Vui lòng quét lại mã QR hoặc liên hệ quản lý.")
 else:
+    st.title("Đặt hàng Nhà Hàng")
     st.write(f"Phòng: {room_number}")
+    # Tiếp tục logic hiển thị menu và đặt hàng...
 
     menu_data = load_data(MENU_FILE)
     if menu_data.empty:
