@@ -1,14 +1,19 @@
 import pandas as pd
+import os
 import qrcode
 from io import BytesIO
-from PIL import Image
 
-import pandas as pd
-import os
+def initialize_file(file_path, columns):
+    """
+    Tạo file CSV với các cột chỉ định nếu file chưa tồn tại.
+    """
+    if not os.path.exists(file_path):
+        df = pd.DataFrame(columns=columns)
+        df.to_csv(file_path, index=False)
 
 def load_data(file_path):
     """
-    Hàm load dữ liệu từ file CSV. Nếu file không tồn tại, trả về DataFrame rỗng.
+    Load dữ liệu từ file CSV. Nếu file không tồn tại, trả về DataFrame rỗng.
     """
     if os.path.exists(file_path):
         try:
@@ -19,15 +24,26 @@ def load_data(file_path):
 
 def save_data(data, file_path):
     """
-    Hàm lưu dữ liệu vào file CSV.
+    Lưu DataFrame vào file CSV.
     """
     data.to_csv(file_path, index=False)
 
-def save_data(data, file_path):
-    data.to_csv(file_path, index=False)
-
 def create_qr_code(url):
+    """
+    Tạo mã QR từ URL và trả về dữ liệu ảnh dưới dạng byte.
+    """
     qr = qrcode.make(url)
     buffer = BytesIO()
     qr.save(buffer, format="PNG")
     return buffer.getvalue()
+
+def append_unique(data, file_path, unique_col):
+    """
+    Thêm dữ liệu mới vào file CSV, chỉ thêm nếu giá trị cột `unique_col` không trùng lặp.
+    """
+    existing_data = load_data(file_path)
+    if not existing_data.empty:
+        merged_data = pd.concat([existing_data, data]).drop_duplicates(subset=unique_col, keep="first")
+    else:
+        merged_data = data
+    save_data(merged_data, file_path)
