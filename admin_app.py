@@ -67,12 +67,16 @@ elif tab == "Xem menu hiện tại":
 elif tab == "Danh sách QR Code đã tạo":
     st.header("Danh sách QR Code đã tạo")
     qr_data = load_data(QR_FILE)
+
     if qr_data.empty:
         st.info("Chưa có QR Code nào được tạo.")
     else:
         for i, row in qr_data.iterrows():
             st.subheader(f"Phòng: {row['Phòng']}")
-            st.write(f"Link: {row['Link']}")
+            st.write(f"Link: [Đặt hàng tại đây]({row['Link']})")  # Hiện link URL
+            qr_image = create_qr_code(row['Link'])  # Tạo lại QR Code từ link
+            st.image(qr_image, caption=f"QR Code - Phòng {row['Phòng']}")
+
 
 elif tab == "Xem danh sách đơn hàng":
     st.header("Danh sách đơn hàng")
