@@ -33,27 +33,56 @@ if tab == "Tạo mã QR":
 
 elif tab == "Tạo menu đồ ăn/thức uống":
     st.header("Cập nhật menu")
-    menu_data = load_data(MENU_FILE)
-    item_name = st.text_input("Tên món:")
-    item_desc = st.text_input("Miêu tả món:")
-    item_price = st.number_input("Giá món:", min_value=0.0)
-    uploaded_image = st.file_uploader("Tải lên ảnh món ăn (tùy chọn)", type=["jpg", "png", "jpeg"])
+    
+    # Khởi tạo các giá trị mặc định
+    if 'item_name' not in st.session_state:
+        st.session_state['item_name'] = ""
+    if 'item_desc' not in st.session_state:
+        st.session_state['item_desc'] = ""
+    if 'item_price' not in st.session_state:
+        st.session_state['item_price'] = 0.0
+    if 'uploaded_image' not in st.session_state:
+        st.session_state['uploaded_image'] = None
+
+    # Input các trường
+    item_name = st.text_input("Tên món:", value=st.session_state['item_name'], key="item_name_input")
+    item_desc = st.text_input("Miêu tả món:", value=st.session_state['item_desc'], key="item_desc_input")
+    item_price = st.number_input("Giá món:", min_value=0.0, value=st.session_state['item_price'], key="item_price_input")
+    uploaded_image = st.file_uploader("Tải lên ảnh món ăn (tùy chọn)", type=["jpg", "png", "jpeg"], key="uploaded_image_input")
+
+    # Thêm món ăn vào menu
     if st.button("Thêm món"):
         if item_name and item_desc and item_price > 0:
+            # Xử lý ảnh nếu có tải lên
             image_path = ""
             if uploaded_image:
                 image_path = os.path.join(IMAGE_DIR, uploaded_image.name)
                 with open(image_path, "wb") as f:
                     f.write(uploaded_image.read())
-            menu_data = pd.concat([menu_data, pd.DataFrame([[item_name, item_desc, item_price, image_path]], columns=['Món ăn', 'Miêu tả', 'Giá', 'Ảnh'])], ignore_index=True)
+            else:
+                st.warning("Không có ảnh được tải lên. Sẽ lưu món ăn mà không có ảnh.")
+
+            # Lưu dữ liệu vào file menu
+            new_row = pd.DataFrame([[item_name, item_desc, item_price, image_path]], columns=['Món ăn', 'Miêu tả', 'Giá', 'Ảnh'])
+            menu_data = load_data(MENU_FILE)
+            menu_data = pd.concat([menu_data, new_row], ignore_index=True)
             save_data(menu_data, MENU_FILE)
+
+            # Reset các trường input sau khi thêm
+            st.session_state['item_name'] = ""
+            st.session_state['item_desc'] = ""
+            st.session_state['item_price'] = 0.0
+            st.session_state['uploaded_image'] = None
+
             st.success("Thêm món thành công!")
         else:
             st.error("Vui lòng nhập đầy đủ thông tin món ăn.")
 
+
 elif tab == "Xem menu hiện tại":
     st.header("Menu hiện tại")
     menu_data = load_data(MENU_FILE)
+
     if menu_data.empty:
         st.info("Chưa có món ăn nào trong menu.")
     else:
@@ -61,8 +90,12 @@ elif tab == "Xem menu hiện tại":
             st.subheader(row['Món ăn'])
             st.write(f"Miêu tả: {row['Miêu tả']}")
             st.write(f"Giá: {row['Giá']} VND")
-            if row['Ảnh']:
+            # Kiểm tra xem có ảnh hay không
+            if pd.notna(row['Ảnh']) and os.path.isfile(row['Ảnh']):
                 st.image(row['Ảnh'], caption=row['Món ăn'])
+            else:
+                st.warning("Không có ảnh cho món ăn này.")
+
 
 elif tab == "Danh sách QR Code đã tạo":
     st.header("Danh sách QR Code đã tạo")
